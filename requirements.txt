@@ -1,6 +1,5 @@
-pyrogram
-pytgcalls
-tgcalls
+pyrogram==2.0.106
+pytgcalls==2.5.2
 tgcrypto
 pydub
 aiohttp
