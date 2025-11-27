@@ -1,6 +1,6 @@
 pyrogram==2.0.106
 pytgcalls==3.0.0.dev3
-tgcalls==3.0.0.dev6
+git+https://github.com/pytgcalls/tgcalls.git@dev
 tgcrypto
 pydub
 aiohttp
