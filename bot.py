@@ -2,9 +2,11 @@ import os
 import json
 import asyncio
 from pyrogram import Client, filters
-from pytgcalls import AudioPiped
+from pytgcalls import PyTgCalls
+from pytgcalls.types.input_stream.input_stream import AudioPiped
 from config import *
 from pydub import AudioSegment
+import os, json, asyncio
 
 # -------------------- CREATE SILENCE FILE --------------------
 silence_file = os.path.join(TEMP_DIR, "silence.mp3")
