@@ -1,5 +1,7 @@
 pyrogram
 py-tgcalls==2.2.8
 tgcrypto
-pytgcalls
 pydub
+aiohttp
+deprecation
+ntgcalls>=2.0.6
