@@ -1,6 +1,6 @@
-git+https://github.com/pytgcalls/pytgcalls.git@dev
-git+https://github.com/pytgcalls/tgcalls.git@dev
 pyrogram==2.0.106
+pytgcalls==2.5.2
+tgcalls==2.5.2
 tgcrypto
 pydub
 aiohttp
