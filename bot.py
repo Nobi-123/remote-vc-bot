@@ -2,8 +2,7 @@ import os
 import json
 import asyncio
 from pyrogram import Client, filters
-from pytgcalls import PyTgCalls
-from pytgcalls.types.input_stream import AudioPiped
+from pytgcalls import AudioPiped
 from config import *
 from pydub import AudioSegment
 
