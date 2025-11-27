@@ -66,7 +66,7 @@ async def connect(_, msg):
     calls[cli] = PyTgCalls(cli)
     await calls[cli].start()
 
-    await msg.reply(f"✅ Assistant added: {sess_path}")
+    await msg.reply(f"Hogya hai added: {sess_path}")
 
 
 # -------------------- COMMAND: DISCONNECT --------------------
@@ -82,9 +82,9 @@ async def disconnect(_, msg):
         os.remove(session_files.pop(idx))
         save_sessions()
 
-        await msg.reply("✅ Assistant disconnected")
+        await msg.reply("Remove Krdiya hu baby!")
     except:
-        await msg.reply("❌ Invalid session number")
+        await msg.reply("galat string session hai chutiye**")
 
 
 # -------------------- COMMAND: JOIN VC --------------------
@@ -102,7 +102,7 @@ async def join(_, msg):
         except:
             continue
 
-    await msg.reply("✅ All assistants joined VC")
+    await msg.reply("Kisko pelna hai aagye ham")
 
 
 # -------------------- COMMAND: LEAVE VC --------------------
@@ -116,7 +116,7 @@ async def leave(_, msg):
         except:
             continue
 
-    await msg.reply("✅ All assistants left VC")
+    await msg.reply("Jaarha hu sbki mkc")
 
 
 # -------------------- COMMAND: RECORD --------------------
@@ -124,14 +124,14 @@ async def leave(_, msg):
 async def start_record(_, msg):
     global recording
     recording = True
-    await msg.reply("✅ Recording enabled")
+    await msg.reply("paid show recording krrh")
 
 
 @bot.on_message(filters.command("stoprecord", PREFIX) & filters.user(sudo_users))
 async def stop_record(_, msg):
     global recording
     recording = False
-    await msg.reply("✅ Recording stopped")
+    await msg.reply("chee bc 🤡 nhi krna ch*t*yo ke baat recording")
 
 
 # -------------------- SUDO MANAGEMENT --------------------
@@ -143,7 +143,7 @@ async def addsudo(_, msg):
     uid = int(msg.command[1])
     sudo_users.add(uid)
 
-    await msg.reply(f"✅ Added {uid} as sudo")
+    await msg.reply(f"Hogya add {uid} as sudo")
 
 
 @bot.on_message(filters.command("delsudo", PREFIX) & filters.user({OWNER_ID}))
@@ -154,7 +154,7 @@ async def delsudo(_, msg):
     uid = int(msg.command[1])
     sudo_users.discard(uid)
 
-    await msg.reply(f"✅ Removed {uid} from sudo")
+    await msg.reply(f"✅ nkl bkl {uid} from sudo")
 
 
 # -------------------- COMMAND: STATUS --------------------
@@ -181,7 +181,7 @@ async def play(_, msg):
     for cli in assistants:
         await calls[cli].change_stream(0, AudioPiped(file))
 
-    await msg.reply("✅ Playing audio in VC")
+    await msg.reply("pel rha hu babe")
 
 
 # -------------------- COMMAND: SILENCE --------------------
