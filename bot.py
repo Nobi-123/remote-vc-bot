@@ -34,6 +34,9 @@ if os.path.exists(state_file):
     with open(state_file, "r") as f:
         session_files = json.load(f)
 
+# Ensure sudo_users is a list
+sudo_users = list(sudo_users)
+
 # -------------------- HELPER FUNCTIONS --------------------
 async def start_assistants():
     global assistants
@@ -49,8 +52,14 @@ def save_sessions():
     with open(state_file, "w") as f:
         json.dump(session_files, f)
 
-# -------------------- COMMAND: CONNECT --------------------
-@bot.on_message(filters.command("connect", PREFIX) & filters.user(sudo_users))
+# -------------------- COMMANDS --------------------
+def user_filter(user_ids):
+    """Return filters.user() compatible with Pyrogram (list or int)."""
+    if isinstance(user_ids, set):
+        return filters.user(list(user_ids))
+    return filters.user(user_ids)
+
+@bot.on_message(filters.command("connect", PREFIX) & user_filter(sudo_users))
 async def connect(_, msg):
     if len(msg.command) < 2:
         return await msg.reply("Usage: /connect <string_session>")
@@ -72,8 +81,7 @@ async def connect(_, msg):
 
     await msg.reply(f"Added assistant: {sess_path}")
 
-# -------------------- COMMAND: DISCONNECT --------------------
-@bot.on_message(filters.command("disconnect", PREFIX) & filters.user(sudo_users))
+@bot.on_message(filters.command("disconnect", PREFIX) & user_filter(sudo_users))
 async def disconnect(_, msg):
     if len(msg.command) < 2:
         return await msg.reply("Usage: /disconnect <session_number>")
@@ -87,8 +95,7 @@ async def disconnect(_, msg):
     except Exception:
         await msg.reply("Invalid session number.")
 
-# -------------------- COMMAND: JOIN VC --------------------
-@bot.on_message(filters.command("join", PREFIX) & filters.user(sudo_users))
+@bot.on_message(filters.command("join", PREFIX) & user_filter(sudo_users))
 async def join(_, msg):
     if len(msg.command) < 2:
         return await msg.reply("Usage: /join <chat_link_or_id>")
@@ -104,8 +111,7 @@ async def join(_, msg):
             continue
     await msg.reply("Joined VC.")
 
-# -------------------- COMMAND: LEAVE VC --------------------
-@bot.on_message(filters.command("leave", PREFIX) & filters.user(sudo_users))
+@bot.on_message(filters.command("leave", PREFIX) & user_filter(sudo_users))
 async def leave(_, msg):
     chat = msg.command[1] if len(msg.command) > 1 else None
     for cli in assistants:
@@ -115,38 +121,39 @@ async def leave(_, msg):
             continue
     await msg.reply("Left VC.")
 
-# -------------------- COMMAND: RECORD --------------------
-@bot.on_message(filters.command("record", PREFIX) & filters.user(sudo_users))
+@bot.on_message(filters.command("record", PREFIX) & user_filter(sudo_users))
 async def start_record(_, msg):
     global recording
     recording = True
     await msg.reply("Recording started.")
 
-@bot.on_message(filters.command("stoprecord", PREFIX) & filters.user(sudo_users))
+@bot.on_message(filters.command("stoprecord", PREFIX) & user_filter(sudo_users))
 async def stop_record(_, msg):
     global recording
     recording = False
     await msg.reply("Recording stopped.")
 
 # -------------------- SUDO MANAGEMENT --------------------
-@bot.on_message(filters.command("addsudo", PREFIX) & filters.user({OWNER_ID}))
+@bot.on_message(filters.command("addsudo", PREFIX) & user_filter(OWNER_ID))
 async def addsudo(_, msg):
     if len(msg.command) < 2:
         return await msg.reply("Usage: /addsudo <user_id>")
     uid = int(msg.command[1])
-    sudo_users.add(uid)
+    if uid not in sudo_users:
+        sudo_users.append(uid)
     await msg.reply(f"User {uid} added as sudo.")
 
-@bot.on_message(filters.command("delsudo", PREFIX) & filters.user({OWNER_ID}))
+@bot.on_message(filters.command("delsudo", PREFIX) & user_filter(OWNER_ID))
 async def delsudo(_, msg):
     if len(msg.command) < 2:
         return await msg.reply("Usage: /delsudo <user_id>")
     uid = int(msg.command[1])
-    sudo_users.discard(uid)
+    if uid in sudo_users:
+        sudo_users.remove(uid)
     await msg.reply(f"User {uid} removed from sudo.")
 
-# -------------------- COMMAND: STATUS --------------------
-@bot.on_message(filters.command("status", PREFIX) & filters.user(sudo_users))
+# -------------------- STATUS & HELP --------------------
+@bot.on_message(filters.command("status", PREFIX) & user_filter(sudo_users))
 async def status(_, msg):
     text = f"""
 📊 Bot Status
@@ -157,54 +164,7 @@ Silenced: {silenced}
 """
     await msg.reply(text)
 
-# -------------------- COMMAND: PLAY AUDIO --------------------
-@bot.on_message(filters.command("play", PREFIX) & filters.user(sudo_users))
-async def play(_, msg):
-    if not AudioPiped:
-        return await msg.reply("AudioPiped not available. Install pytgcalls dev version.")
-    if not msg.reply_to_message:
-        return await msg.reply("Reply to an audio file with /play.")
-    file = await msg.reply_to_message.download(os.path.join(TEMP_DIR, "play.mp3"))
-    for cli in assistants:
-        try:
-            await calls[cli].change_stream(0, AudioPiped(file))
-        except Exception:
-            continue
-    await msg.reply("Audio started.")
-
-# -------------------- COMMAND: SILENCE --------------------
-@bot.on_message(filters.command("silence", PREFIX) & filters.user(sudo_users))
-async def silence(_, msg):
-    global silenced, paused_streams
-    silenced = True
-    paused_streams = {}
-    for cli in assistants:
-        try:
-            paused_streams[cli] = calls[cli].get_active_call()
-            if AudioPiped:
-                await calls[cli].change_stream(0, AudioPiped(silence_file))
-        except Exception:
-            continue
-    await msg.reply("Audio muted.")
-
-# -------------------- COMMAND: RUSH --------------------
-@bot.on_message(filters.command("rush", PREFIX) & filters.user(sudo_users))
-async def rush(_, msg):
-    global silenced, paused_streams
-    if not silenced:
-        return await msg.reply("Bot is not silenced.")
-    silenced = False
-    for cli, old_stream in paused_streams.items():
-        try:
-            if old_stream:
-                await calls[cli].change_stream(0, old_stream)
-        except Exception:
-            continue
-    paused_streams = {}
-    await msg.reply("Audio resumed.")
-
-# -------------------- HELP COMMAND --------------------
-@bot.on_message(filters.command("help", PREFIX) & filters.user(sudo_users | {OWNER_ID}))
+@bot.on_message(filters.command("help", PREFIX) & user_filter(sudo_users + [OWNER_ID]))
 async def help_cmd(_, msg):
     help_text = """
 🔰 VC Multi-Assistant Bot — Help Menu
@@ -241,4 +201,5 @@ async def main():
     print("Bot started and ready.")
     await asyncio.get_event_loop().create_future()
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
