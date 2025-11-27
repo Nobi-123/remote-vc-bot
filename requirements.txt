@@ -3,3 +3,4 @@ git+https://github.com/pytgcalls/pytgcalls.git@dev
 tgcrypto
 pydub
 aiohttp
+https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git
