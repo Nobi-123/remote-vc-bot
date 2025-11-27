@@ -1,7 +1,7 @@
 {
   "name": "VC Multi Assistant Bot",
   "description": "A Telegram multi-assistant VC bot with PyTgCalls, sudo system, silence mode, and audio streaming.",
-  "repository": "https://github.com/your-repo-link",
+  "repository": "https://github.com/Nobi-123/remote-vc-bot",
   "logo": "https://te.legra.ph/file/9c0e0c83db0d4d4a713fa.jpg",
   "keywords": ["telegram", "vc", "music", "assistant", "pytgcalls", "pyrogram"],
   "env": {
